@@ -1,0 +1,130 @@
+export CUDA_PATH=/usr/local/cuda_10.2
+
+or
+create a file Makefile.conf //add the following line
+CUDA_PATH=/usr/local/cuda_10.2
+
+sudo chmod -R +777 datasets
+.................. benchmarks
+
+In bfs benchmark make file compute_12 as compute_35
+
+sudo bash run.sh
+
+./parboil compile bfs cuda
+./parboil run bfs cuda default
+./parboil run tpacf cuda small default
+
+
+
+
+You need to put the datasets folder in the parboil folder and it should look like this:
+
+benchmarks/ common/ datasets/ DIRECTORIES driver/ LICENSE parboil* README README.benchmarks README.buildsystem
+
+For the second question, I am having the same issue, so if you found the solution I would appreciate it if you tell me.
+
+
+
+In common/Makefile.conf
+
+OPTIMIZATION=2
+CUDA_PATH=/usr/local/cuda-10.2
+CUDA_LIB_PATH=/usr/local/cuda-10.2/lib64
+
+
+https://lynring24.github.io/til/2019/09/04/parboil-recipe-for-target-run-failed/
+parboil/common/mk/cuda.mk
+
+ 89 run:
+ 90     @echo "Resolving CUDA runtime library..."
+ 91 #   original code : checking the dependancy 
+ 92 #   @$(shell echo $(RUNTIME_ENV)) LD_LIBRARY_PATH=$(CUDA_LIB_PATH) ldd $(BIN) | grep cuda
+ 93 #   @$(shell echo $(RUNTIME_ENV)) LD_LIBRARY_PATH=$(CUDA_LIB_PATH) $(BIN) $(ARGS)
+ 94 #   modified code
+ 96     @LD_LIBRARY_PATH=$(CUDA_LIB_PATH) $(BIN) $(ARGS)
+
+//////////////////////////////////////////////////////////////////////////////////
+
+
+~/revathi/GPUbenchmark/Parboil$ ./parboil list
+Parboil parallel benchmark suite, version 0.2
+
+Benchmarks:
+  bfs
+  stencil
+  tpacf
+  lbm
+  mri-gridding
+  sad
+  spmv
+  histo
+  sgemm
+  mri-q
+  cutc
+
+////////////////////////////////////////////////////////
+
+revathi@revathi-Lenovo-Legion-Y540-15IRH-PG0:~/revathi/GPUbenchmark/Parboil$ ./parboil compile sgemm cuda 
+Parboil parallel benchmark suite, version 0.2
+
+/usr/local/cuda/bin/nvcc src/cuda/main.cu -I/home/revathi/revathi/GPUbenchmark/Parboil/common/include -I/usr/local/cuda-10.2/include -O3   -c -o build/cuda_default/main.o
+/usr/local/cuda/bin/nvcc build/cuda_default/main.o build/cuda_default/io.o build/cuda_default/parboil_cuda.o -o build/cuda_default/sgemm -L/usr/local/cuda-10.2/lib64 -lm -lpthread -lm -lstdc++ 
+
+
+
+revathi@revathi-Lenovo-Legion-Y540-15IRH-PG0:~/revathi/GPUbenchmark/Parboil$ ./parboil compile sgemm omp_base 
+Parboil parallel benchmark suite, version 0.2
+
+g++ -I/home/revathi/revathi/GPUbenchmark/Parboil/common/include -I/usr/local/cuda/include  -fopenmp -c src/omp_base/main.cc -o build/omp_base_default/main.o
+g++ build/omp_base_default/main.o build/omp_base_default/io.o build/omp_base_default/sgemm_kernel.o build/omp_base_default/parboil.o -o build/omp_base_default/sgemm  -lm -lpthread -lstdc++ -lgomp
+revathi@revathi-Lenovo-Legion-Y540-15IRH-PG0:~/revathi/GPUbenchmark/Parboil$ 
+
+////////////////////////////////////////////////////////
+
+revathi@revathi-Lenovo-Legion-Y540-15IRH-PG0:~/revathi/GPUbenchmark/Parboil$ ./parboil run bfs cuda 1M
+Parboil parallel benchmark suite, version 0.2
+revathi@revathi-Lenovo-Legion-Y540-15IRH-PG0:~/revathi/GPUbenchmark/Parboil$ ./parboil run bfs cuda NY
+Parboil parallel benchmark suite, version 0.2
+$ ./parboil run bfs cuda SF
+$ ./parboil run bfs cuda UT
+
+
+
+
+revathi@revathi-Lenovo-Legion-Y540-15IRH-PG0:~/revathi/GPUbenchmark/Parboil$ ./parboil run cutcp cuda small
+Parboil parallel benchmark suite, version 0.2
+/revathi/GPUbenchmark/Parboil$ ./parboil run cutcp cuda large
+
+revathi@revathi-Lenovo-Legion-Y540-15IRH-PG0:~/revathi/GPUbenchmark/Parboil$ ./parboil run histo cuda default
+/revathi/GPUbenchmark/Parboil$ ./parboil run histo cuda large
+
+/revathi/GPUbenchmark/Parboil$ ./parboil run lbm cuda short
+/revathi/GPUbenchmark/Parboil$ ./parboil run lbm cuda long
+
+$ ./parboil run mri-gridding cuda small
+
+$ ./parboil run mri-q cuda small
+$ ./parboil run mri-q cuda large
+
+$ ./parboil run sad cuda default
+$ ./parboil run sad cuda large
+
+l$ ./parboil run sgemm cuda small
+l$ ./parboil run sgemm cuda medium
+
+$ ./parboil run spmv cuda small
+$ ./parboil run spmv cuda medium
+$ ./parboil run spmv cuda large
+
+$ ./parboil run stencil cuda default
+$ ./parboil run stencil cuda small
+
+$ ./parboil run tpacf cuda small
+$ ./parboil run tpacf cuda medium
+$ ./parboil run tpacf cuda large
+
+
+
+
+
